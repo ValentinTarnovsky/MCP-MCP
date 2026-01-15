@@ -43,7 +43,7 @@ import { getDependencyKeys, DEPENDENCY_REGISTRY } from './registry/dependencies.
 const server = new Server(
   {
     name: 'minecraft-plugin-docs',
-    version: '1.0.0',
+    version: '1.0.1',
   },
   {
     capabilities: {

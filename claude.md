@@ -186,3 +186,73 @@ When working with Minecraft plugin projects:
 3. **Use compileOnly scope** - Most plugin APIs should be `compileOnly` or `provided`
 4. **Check compatibility** - Verify dependencies work with the target Minecraft version
 5. **Use the registry** - Check if a dependency is in the MCP registry before looking elsewhere
+
+---
+
+## Auto-Versioning & GitHub Sync
+
+**IMPORTANT: When making ANY changes to this MCP project, Claude MUST follow this workflow:**
+
+### On Every Code Change:
+
+1. **Make the requested changes** to the source files
+2. **Rebuild the project**: `npm run build`
+3. **Bump the version** in `package.json`:
+   - Bug fixes: bump patch (1.0.0 → 1.0.1)
+   - New features: bump minor (1.0.0 → 1.1.0)
+   - Breaking changes: bump major (1.0.0 → 2.0.0)
+4. **Update the version** in `src/index.ts` server configuration to match
+5. **Commit and push**:
+   ```bash
+   cd "C:\Users\tarno\Desktop\MCP-MCP"
+   git add -A
+   git commit -m "v<VERSION>: <brief description of changes>"
+   git push origin main
+   ```
+
+### Version Bump Helper Commands:
+
+```bash
+# Patch version (bug fixes): 1.0.0 → 1.0.1
+npm version patch --no-git-tag-version
+
+# Minor version (new features): 1.0.0 → 1.1.0
+npm version minor --no-git-tag-version
+
+# Major version (breaking changes): 1.0.0 → 2.0.0
+npm version major --no-git-tag-version
+```
+
+### After Version Bump:
+Always update the version in `src/index.ts`:
+```typescript
+const server = new Server(
+  {
+    name: 'minecraft-plugin-docs',
+    version: '<NEW_VERSION>',  // ← Update this!
+  },
+  ...
+);
+```
+
+### GitHub Repository
+- **Repo**: https://github.com/ValentinTarnovsky/minecraft-plugin-docs-mcp
+- **Visibility**: Private
+- **Default Branch**: main
+
+### Commit Message Format:
+```
+v<VERSION>: <type>: <description>
+
+Types:
+- feat: New feature
+- fix: Bug fix
+- docs: Documentation changes
+- refactor: Code refactoring
+- deps: Dependency updates
+```
+
+**Example commits:**
+- `v1.0.1: fix: Correct gradle parser logic for BOM dependencies`
+- `v1.1.0: feat: Add support for Folia API dependency`
+- `v1.0.2: docs: Update README with new examples`
