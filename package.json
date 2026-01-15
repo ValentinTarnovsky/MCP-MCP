@@ -1,0 +1,36 @@
+{
+  "name": "minecraft-plugin-docs-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Minecraft Java plugin developers to check documentation and versions of common dependencies",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "minecraft",
+    "mcp",
+    "plugin",
+    "documentation",
+    "paper",
+    "spigot",
+    "bukkit"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "fast-xml-parser": "^4.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
