@@ -10,6 +10,7 @@ export interface DependencyInfo {
     wiki?: string;
     javadocs?: string;
     github: string;
+    downloadUrl?: string; // Para JARs manuales
   };
   maven: {
     groupId: string;
@@ -18,9 +19,20 @@ export interface DependencyInfo {
     repositoryUrl?: string;
   };
   aliases: string[];
+  /** Referencia de APIs disponibles para plugins con múltiples sub-APIs */
+  apiReference?: {
+    mainClass: string;
+    importPackage: string;
+    subApis?: Array<{
+      name: string;
+      getter: string;
+      description: string;
+      methods?: string[];
+    }>;
+  };
 }
 
-export type RepositoryType = 'maven-central' | 'jitpack' | 'paper' | 'spigot' | 'codemc' | 'custom';
+export type RepositoryType = 'maven-central' | 'jitpack' | 'paper' | 'spigot' | 'codemc' | 'custom' | 'manual';
 
 export const REPOSITORY_URLS: Record<RepositoryType, string> = {
   'maven-central': 'https://repo1.maven.org/maven2',
@@ -29,6 +41,7 @@ export const REPOSITORY_URLS: Record<RepositoryType, string> = {
   'spigot': 'https://hub.spigotmc.org/nexus/content/repositories/snapshots',
   'codemc': 'https://repo.codemc.io/repository/maven-public',
   'custom': '',
+  'manual': '', // JAR descargado manualmente, usar systemPath en Maven
 };
 
 export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
@@ -257,6 +270,213 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
       repositoryUrl: 'https://maven.enginehub.org/repo/',
     },
     aliases: ['wg', 'com.sk89q.worldguard:worldguard-bukkit', 'worldguard-bukkit'],
+  },
+
+  'skinsrestorer': {
+    name: 'SkinsRestorer API',
+    description: 'Skin management API - set, get, and apply skins to players on Bukkit/BungeeCord/Velocity',
+    documentation: {
+      wiki: 'https://skinsrestorer.net/docs/development/api',
+      javadocs: 'https://jd.skinsrestorer.net',
+      github: 'https://github.com/SkinsRestorer/SkinsRestorer',
+    },
+    maven: {
+      groupId: 'net.skinsrestorer',
+      artifactId: 'skinsrestorer-api',
+      repository: 'codemc',
+      repositoryUrl: 'https://repo.codemc.org/repository/maven-public/',
+    },
+    aliases: ['skins-restorer', 'skinsrestorer-api', 'net.skinsrestorer:skinsrestorer-api', 'sr-api'],
+    apiReference: {
+      mainClass: 'SkinsRestorerAPI',
+      importPackage: 'net.skinsrestorer.api',
+      subApis: [
+        {
+          name: 'SkinsRestorerProvider',
+          getter: 'SkinsRestorerProvider.get()',
+          description: 'Entry point to retrieve the API instance',
+          methods: [
+            'get() -> SkinsRestorerAPI',
+          ],
+        },
+        {
+          name: 'SkinStorage',
+          getter: 'getSkinStorage()',
+          description: 'Manage skin data storage - find, create, and store skins',
+          methods: [
+            'findSkinData(String skinName) -> Optional<InputDataResult>',
+            'findOrCreateSkinData(String skinName) -> InputDataResult',
+            'setCustomSkinData(String skinName, SkinProperty property)',
+            'getSkinForPlayer(UUID playerUuid, String playerName) -> Optional<SkinProperty>',
+          ],
+        },
+        {
+          name: 'PlayerStorage',
+          getter: 'getPlayerStorage()',
+          description: 'Manage player skin assignments',
+          methods: [
+            'setSkinIdOfPlayer(UUID playerUuid, SkinIdentifier skinId)',
+            'getSkinIdOfPlayer(UUID playerUuid) -> Optional<SkinIdentifier>',
+            'removeSkinIdOfPlayer(UUID playerUuid)',
+          ],
+        },
+        {
+          name: 'SkinApplier',
+          getter: 'getSkinApplier(Class<P> playerClass)',
+          description: 'Apply skins to players in real-time',
+          methods: [
+            'applySkin(P player)',
+            'applySkin(P player, SkinProperty skin)',
+          ],
+        },
+        {
+          name: 'MineSkinAPI',
+          getter: 'getMineSkinAPI()',
+          description: 'Generate skins from image URLs via MineSkin service',
+          methods: [
+            'genSkin(String url, SkinVariant variant) -> MineSkinResponse',
+          ],
+        },
+        {
+          name: 'PropertyUtils',
+          getter: 'PropertyUtils (static)',
+          description: 'Utility methods for skin properties',
+          methods: [
+            'getSkinTextureUrl(SkinProperty property) -> String',
+          ],
+        },
+      ],
+    },
+  },
+
+  'edtools-api': {
+    name: 'EdTools API',
+    description: 'Developer API for EdTools Minecraft plugin - custom enchantments, lucky blocks, GUIs, zones, currencies, boosters, backpacks, and OmniTools',
+    documentation: {
+      wiki: 'https://edseries-plugins.gitbook.io/p/edtools/api/edtools-api',
+      github: 'https://edseries-plugins.gitbook.io/p/edtools',
+      downloadUrl: 'https://edseries-plugins.gitbook.io/p/edtools/api/edtools-api',
+    },
+    maven: {
+      groupId: 'es.edwardbelt.edgens',
+      artifactId: 'EdTools-API',
+      repository: 'manual',
+    },
+    aliases: ['edtools', 'edgens', 'es.edwardbelt.edgens:EdTools-API'],
+    apiReference: {
+      mainClass: 'EdToolsAPI',
+      importPackage: 'es.edwardbelt.edgens.iapi',
+      subApis: [
+        {
+          name: 'EnchantAPI',
+          getter: 'getEnchantAPI()',
+          description: 'Custom enchantment system - register, trigger, and manage enchant levels',
+          methods: [
+            'registerEnchant(String enchantId, APIEnchant enchant)',
+            'getEnchantLevel(UUID uuid, String enchant) -> double',
+            'addEnchantLevel(UUID uuid, String enchant, double level)',
+            'removeEnchantLevel(UUID uuid, String enchant, double level)',
+            'triggerCustomEnchant(Player player, String enchant, Material material, Vector position)',
+            'tryTriggerCustomEnchant(Player player, String enchant, Material material, Vector position) -> boolean',
+            'getEnchantChance(UUID uuid, String enchant) -> double',
+            'getEnchantMaxLevel(String enchant) -> double',
+            'getEnchantStartingLevel(String enchant) -> double',
+            'getEnchantMaxChance(String enchant) -> double',
+          ],
+        },
+        {
+          name: 'LuckyBlocksAPI',
+          getter: 'getLuckyBlocksAPI()',
+          description: 'Lucky blocks management - create, validate, and unlock lucky blocks',
+          methods: [
+            'getLuckyBlockItem(String id, Player owner) -> ItemStack',
+            'isLuckyBlock(ItemStack item) -> boolean',
+            'isLuckyBlockUnlocked(ItemStack item) -> boolean',
+            'updateLuckyBlock(Player player, ItemStack item)',
+          ],
+        },
+        {
+          name: 'GuisAPI',
+          getter: 'getGuisAPI()',
+          description: 'Custom GUI management - open, close, and load GUIs dynamically',
+          methods: [
+            'openGui(Player player, String gui)',
+            'openGui(Player player, String gui, Map<String, String> placeholders)',
+            'closeGui(Player player)',
+            'loadGui(String guiId, File guiFile)',
+          ],
+        },
+        {
+          name: 'ZonesAPI',
+          getter: 'getZonesAPI()',
+          description: 'Instanced zones/mines management - sessions, block types, and mining',
+          methods: [
+            'joinGlobalSession(Player player, String zoneId)',
+            'joinAloneSession(Player player, String zoneId)',
+            'leaveSession(Player player)',
+            'isPlayerInSession(Player player) -> boolean',
+            'getPlayerZoneId(Player player) -> String',
+            'getPlayerZoneSessionType(Player player) -> String',
+            'setPlayerBlocksTypeZone(Player player, String zoneId, String blocksType)',
+            'getPlayerBlocksTypeZone(Player player, String zoneId) -> String',
+            'getPlayerLoadedBlocks(Player player) -> Map<Vector, Material>',
+            'mineBlockAsPlayer(Player player, Vector position, String toolId, boolean affectEnchants, boolean affectSell, boolean affectBlockCurrencies, boolean affectLuckyBlocks) -> APIPair<Material, String>',
+          ],
+        },
+        {
+          name: 'OmniToolAPI',
+          getter: 'getOmniToolAPI()',
+          description: 'OmniTool items management - special multi-function tools',
+          methods: [
+            'getOmniToolItem(Player owner, String toolId) -> ItemStack',
+            'getOmniToolFromPlayer(Player owner) -> ItemStack',
+            'isItemOmniTool(ItemStack item) -> boolean',
+            'getOmniToolId(ItemStack item) -> String',
+            'loadTool(String toolId, ConfigurationSection toolSec)',
+          ],
+        },
+        {
+          name: 'CurrencyAPI',
+          getter: 'getCurrencyAPI()',
+          description: 'Custom currencies management - get, set, add, remove balances',
+          methods: [
+            'getCurrency(UUID uuid, String currency) -> double',
+            'setCurrency(UUID uuid, String currency, double amount)',
+            'addCurrency(UUID uuid, String currency, double amount)',
+            'removeCurrency(UUID uuid, String currency, double amount)',
+            'isCurrency(String currency) -> boolean',
+            'getMaxCurrencyValue(String currency) -> double',
+            'getStartingCurrencyValue(String currency) -> double',
+            'getCurrencyName(String currency) -> String',
+          ],
+        },
+        {
+          name: 'BoostersAPI',
+          getter: 'getBoostersAPI()',
+          description: 'Booster system - multipliers for currencies and enchantments',
+          methods: [
+            'getBoosterValueByEconomy(UUID uuid, String economy) -> double',
+            'getBoosterValueGlobalEnchants(UUID uuid) -> double',
+            'getActiveBoosters(UUID uuid) -> List<String>',
+            'existsBooster(UUID uuid, String boosterId) -> boolean',
+            'getBoosterCurrency(UUID uuid, String boosterId) -> String',
+            'isBoosterEnchantType(UUID uuid, String boosterId) -> boolean',
+            'getBoosterName(UUID uuid, String boosterId) -> String',
+            'getBoosterMultiplier(UUID uuid, String boosterId) -> double',
+            'getBoosterDuration(UUID uuid, String boosterId) -> long',
+            'getBoosterRemainingTime(UUID uuid, String boosterId) -> long',
+            'removeBooster(UUID uuid, String boosterId)',
+            'addBooster(UUID uuid, String boosterId, String boosterName, String economy, double multiplier, long duration, boolean enchantBooster, boolean saveDB)',
+          ],
+        },
+        {
+          name: 'BackpackAPI',
+          getter: 'getBackpackAPI()',
+          description: 'Backpack inventory management',
+          methods: [],
+        },
+      ],
+    },
   },
 };
 

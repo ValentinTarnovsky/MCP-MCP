@@ -8,186 +8,161 @@ An MCP (Model Context Protocol) server that helps Minecraft Java plugin develope
 - **Project Scanning** - Scan Gradle and Maven projects to extract all dependencies
 - **Version Checking** - Check for latest versions from Maven Central, JitPack, Paper repo, and more
 - **Full Project Analysis** - Comprehensive analysis of plugin workspaces with recommendations
+- **API Reference** - Detailed sub-API documentation for complex plugins (EdTools, SkinsRestorer, etc.)
 
 ## Supported Dependencies
 
-| Dependency | Description |
-|------------|-------------|
-| Paper API | Paper Minecraft server API |
-| Spigot API | Spigot Minecraft server API |
-| Bukkit | Bukkit API |
-| LuckPerms | Permissions plugin API |
-| Vault | Economy/Permissions/Chat API |
-| HikariCP | JDBC connection pool |
-| Item-NBT-API | NBT manipulation without NMS |
-| ProtocolLib | Packet manipulation library |
-| DecentHolograms | Hologram plugin API |
-| CoreProtect | Block logging API |
-| mc-MenuAPI | GUI/Menu API |
-| PlaceholderAPI | Placeholder system |
-| WorldEdit | World editing API |
-| WorldGuard | Region protection API |
+| Dependency | Repository | Description |
+|------------|------------|-------------|
+| Paper API | Paper | Paper Minecraft server API |
+| Spigot API | Spigot | Spigot Minecraft server API |
+| Bukkit | Spigot | Bukkit API |
+| LuckPerms | Maven Central | Permissions plugin API |
+| Vault | JitPack | Economy/Permissions/Chat API |
+| HikariCP | Maven Central | JDBC connection pool |
+| Item-NBT-API | CodeMC | NBT manipulation without NMS |
+| ProtocolLib | Custom | Packet manipulation library |
+| DecentHolograms | JitPack | Hologram plugin API |
+| CoreProtect | Maven Central | Block logging API |
+| mc-MenuAPI | JitPack | GUI/Menu API |
+| PlaceholderAPI | Custom | Placeholder system |
+| WorldEdit | Custom | World editing API |
+| WorldGuard | Custom | Region protection API |
+| SkinsRestorer | CodeMC | Skin management API |
+| EdTools API | Manual (JAR) | Custom enchantments, zones, currencies, and more |
 
-## Installation
+## Quick Start - Using in Your Projects
 
-### Prerequisites
+### Option 1: Global Installation (Recommended)
 
-- Node.js 18 or higher
-- npm or yarn
-
-### Build from Source
+Install the MCP globally once, then use it in any project:
 
 ```bash
-# Clone or navigate to the project directory
-cd C:\Users\tarno\Desktop\MCP-MCP
-
-# Install dependencies
+# Clone and setup (one time only)
+git clone https://github.com/ValentinTarnovsky/MCP-MCP.git
+cd MCP-MCP
 npm install
-
-# Build the project
 npm run build
+npm link
 ```
 
-### Add to Claude Desktop
+Then in **any project**, add this to your MCP config:
 
-Add the following to your Claude Desktop configuration file:
+**Claude Code** (`.claude/mcp.json`):
+```json
+{
+  "mcpServers": {
+    "minecraft-plugin-docs": {
+      "command": "npx",
+      "args": ["minecraft-plugin-docs-mcp"]
+    }
+  }
+}
+```
 
-**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Claude Desktop** (`%APPDATA%\Claude\claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "minecraft-plugin-docs": {
+      "command": "npx",
+      "args": ["minecraft-plugin-docs-mcp"]
+    }
+  }
+}
+```
+
+### Option 2: Direct Path
+
+If you prefer not to use npm link:
 
 ```json
 {
   "mcpServers": {
     "minecraft-plugin-docs": {
       "command": "node",
-      "args": ["C:\\Users\\tarno\\Desktop\\MCP-MCP\\dist\\index.js"]
+      "args": ["C:\\path\\to\\MCP-MCP\\dist\\index.js"]
     }
   }
 }
 ```
 
-### Add to Claude Code
+## Usage Examples
 
-Add the following to your Claude Code MCP settings (`.claude/mcp.json` or global settings):
+Once configured, you can ask Claude things like:
 
-```json
-{
-  "mcpServers": {
-    "minecraft-plugin-docs": {
-      "command": "node",
-      "args": ["C:\\Users\\tarno\\Desktop\\MCP-MCP\\dist\\index.js"]
-    }
-  }
-}
+### Get Dependency Documentation
 ```
-
-## Usage
-
-### Tool: `get_dependency_docs`
-
-Get documentation for a specific Minecraft plugin dependency.
-
-```
-# Examples
 "Get documentation for paper-api"
 "Look up luckperms docs"
 "What's the Maven coordinate for hikaricp?"
+"Show me EdTools API reference"
+"How do I use SkinsRestorer API?"
 ```
 
-**Parameters:**
-- `dependency` (required): Name of the dependency
-- `fetch_version` (optional): Whether to fetch latest version (default: true)
-
-### Tool: `scan_project_dependencies`
-
-Scan a project directory for all dependencies.
-
+### Scan Your Project
 ```
-# Examples
 "Scan dependencies in my project"
-"What dependencies does C:\path\to\project use?"
+"What dependencies does this plugin use?"
 ```
 
-**Parameters:**
-- `project_path` (required): Path to the project directory
-
-### Tool: `check_latest_versions`
-
-Check for latest versions of dependencies.
-
+### Check for Updates
 ```
-# Examples
 "Check for updates in this project"
 "What's the latest version of paper-api?"
 "Are my dependencies up to date?"
 ```
 
-**Parameters:**
-- `project_path` (optional): Path to scan for current versions
-- `dependencies` (optional): List of specific dependencies to check
-- `check_all` (optional): Check all known dependencies
-
-### Tool: `analyze_plugin_project`
-
-Comprehensive project analysis.
-
+### Full Analysis
 ```
-# Examples
 "Analyze my plugin workspace"
-"Full dependency report for OkiMC-Plugins"
+"Full dependency report"
 ```
 
-**Parameters:**
-- `project_path` (optional): Path to analyze (defaults to OkiMC-Plugins)
-- `check_versions` (optional): Whether to check for updates (default: true)
+## Tools Reference
 
-## Integration with Plugin Projects
+### `get_dependency_docs`
+Get documentation for a specific dependency.
 
-### Adding to Your Plugin Project
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `dependency` | Yes | Name of the dependency (e.g., "paper-api", "edtools") |
+| `fetch_version` | No | Whether to fetch latest version (default: true) |
 
-1. Copy the `claude.md` file to your plugin project's root
-2. Customize it with your project-specific information
-3. Claude will automatically use the MCP tools when relevant
+**Returns:** Wiki URL, Javadocs, GitHub, Maven coordinates, quick-start snippets, and API reference if available.
 
-### Example `claude.md` for Your Project
+### `scan_project_dependencies`
+Scan a project directory for all dependencies.
 
-```markdown
-# My Minecraft Plugin
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `project_path` | Yes | Path to the project directory |
 
-## Project Info
-- Build System: Gradle (Kotlin DSL)
-- Minecraft Version: 1.21.4
-- API: Paper API
+### `check_latest_versions`
+Check for latest versions of dependencies.
 
-## MCP Integration
-This project uses the Minecraft Plugin Documentation MCP.
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `project_path` | No | Path to scan for current versions |
+| `dependencies` | No | List of specific dependencies to check |
+| `check_all` | No | Check all known dependencies |
 
-### Commands
-- `/docs <dependency>` - Get dependency documentation
-- `/check-deps` - Check for dependency updates
-- `/analyze` - Full project analysis
+### `analyze_plugin_project`
+Comprehensive project analysis with recommendations.
 
-## Dependencies
-- Paper API 1.21.4
-- LuckPerms API 5.4
-- HikariCP 5.1.0
-```
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `project_path` | No | Path to analyze |
+| `check_versions` | No | Whether to check for updates (default: true) |
 
-## Configuration
+## Adding Custom Dependencies
 
-### Caching
+Edit `src/registry/dependencies.ts`:
 
-The server caches version information to reduce API calls:
-- Version data: 1 hour TTL
-- Metadata: 30 minutes TTL
-
-### Adding Custom Dependencies
-
-Edit `src/registry/dependencies.ts` to add new dependencies:
-
+### Standard Maven Dependency
 ```typescript
-'my-custom-dep': {
-  name: 'My Custom Dependency',
+'my-plugin-api': {
+  name: 'My Plugin API',
   description: 'Description here',
   documentation: {
     wiki: 'https://...',
@@ -196,44 +171,51 @@ Edit `src/registry/dependencies.ts` to add new dependencies:
   },
   maven: {
     groupId: 'com.example',
-    artifactId: 'my-dep',
-    repository: 'maven-central', // or 'jitpack', 'paper', 'custom'
-    repositoryUrl: 'https://...', // for custom repos
+    artifactId: 'my-plugin-api',
+    repository: 'maven-central', // or 'jitpack', 'paper', 'codemc', 'custom'
+    repositoryUrl: 'https://...', // required for 'custom' repos
   },
-  aliases: ['custom-dep', 'mydep'],
+  aliases: ['myplugin', 'my-plugin'],
 },
 ```
 
-## Troubleshooting
+### Manual JAR Dependency (no Maven repo)
+```typescript
+'local-plugin-api': {
+  name: 'Local Plugin API',
+  description: 'A plugin that distributes JAR manually',
+  documentation: {
+    wiki: 'https://...',
+    github: 'https://...',
+    downloadUrl: 'https://download-link...', // Where to get the JAR
+  },
+  maven: {
+    groupId: 'com.example',
+    artifactId: 'LocalPlugin-API',
+    repository: 'manual', // Special type for local JARs
+  },
+  aliases: ['localplugin'],
+  // Optional: Document sub-APIs
+  apiReference: {
+    mainClass: 'LocalPluginAPI',
+    importPackage: 'com.example.api',
+    subApis: [
+      {
+        name: 'FeatureAPI',
+        getter: 'getFeatureAPI()',
+        description: 'Manage features',
+        methods: ['doSomething()', 'getSomething() -> String'],
+      },
+    ],
+  },
+},
+```
 
-### Server Not Starting
-
-1. Ensure Node.js 18+ is installed: `node --version`
-2. Check the build completed: `npm run build`
-3. Verify the dist/index.js exists
-
-### Dependencies Not Found
-
-1. Check spelling of dependency name
-2. Try using aliases (e.g., "paper" instead of "paper-api")
-3. Use Maven coordinates (e.g., "io.papermc.paper:paper-api")
-
-### Version Check Fails
-
-1. Check internet connectivity
-2. Some repositories may have rate limits
-3. JitPack builds may need to be triggered first
-
-### Build File Parsing Issues
-
-1. Ensure build files are valid Gradle/Maven syntax
-2. Complex Gradle configurations may not parse completely
-3. Version catalogs (libs.versions.toml) are not yet fully supported
+After adding, rebuild: `npm run build`
 
 ## Development
 
 ### Project Structure
-
 ```
 MCP-MCP/
 ├── src/
@@ -254,27 +236,42 @@ MCP-MCP/
 ├── dist/                     # Compiled output
 ├── package.json
 ├── tsconfig.json
-├── claude.md                 # Claude Code integration
 └── README.md
 ```
 
-### Building
-
+### Commands
 ```bash
+npm install      # Install dependencies
 npm run build    # Compile TypeScript
-npm run dev      # Watch mode
+npm run dev      # Watch mode for development
 npm run clean    # Remove dist/
+npm link         # Make available globally via npx
 ```
 
 ### Testing
-
 ```bash
 # Run the server manually
 node dist/index.js
 
-# Test with MCP Inspector (if available)
+# Test with MCP Inspector
 npx @modelcontextprotocol/inspector node dist/index.js
 ```
+
+## Troubleshooting
+
+### Server Not Starting
+1. Ensure Node.js 18+ is installed: `node --version`
+2. Check the build completed: `npm run build`
+3. Verify `dist/index.js` exists
+
+### Dependencies Not Found
+1. Check spelling of dependency name
+2. Try using aliases (e.g., "paper" instead of "paper-api")
+3. Use Maven coordinates (e.g., "io.papermc.paper:paper-api")
+
+### npx Command Not Found
+1. Run `npm link` in the MCP-MCP directory
+2. Verify with `npm list -g minecraft-plugin-docs-mcp`
 
 ## License
 
@@ -284,7 +281,7 @@ MIT
 
 1. Fork the repository
 2. Create a feature branch
-3. Add tests for new functionality
+3. Add your changes
 4. Submit a pull request
 
 ## Acknowledgments

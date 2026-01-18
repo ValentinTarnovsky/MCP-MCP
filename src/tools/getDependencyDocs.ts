@@ -20,6 +20,7 @@ export interface DependencyDocsResult {
       wiki?: string;
       javadocs?: string;
       github: string;
+      downloadUrl?: string;
     };
     maven: {
       groupId: string;
@@ -29,6 +30,16 @@ export interface DependencyDocsResult {
       latestVersion?: string;
     };
     quickStart?: string;
+    apiReference?: {
+      mainClass: string;
+      importPackage: string;
+      subApis?: Array<{
+        name: string;
+        getter: string;
+        description: string;
+        methods?: string[];
+      }>;
+    };
   };
   suggestions?: string[];
   error?: string;
@@ -91,6 +102,7 @@ export async function getDependencyDocs(
         latestVersion,
       },
       quickStart: generateQuickStart(info, latestVersion),
+      apiReference: info.apiReference,
     },
   };
 }
@@ -153,6 +165,50 @@ function findSimilarDependencies(query: string): string[] {
 function generateQuickStart(info: DependencyInfo, version?: string): string {
   const v = version || 'LATEST';
 
+  // Para JARs manuales (sin repositorio Maven)
+  if (info.maven.repository === 'manual') {
+    const jarFileName = `${info.maven.artifactId}.jar`;
+
+    const maven = `<!-- Maven (JAR local) -->
+<!-- 1. Descarga el JAR desde: ${info.documentation.downloadUrl || info.documentation.wiki} -->
+<!-- 2. Coloca ${jarFileName} en la raíz de tu proyecto -->
+<dependency>
+    <groupId>${info.maven.groupId}</groupId>
+    <artifactId>${info.maven.artifactId}</artifactId>
+    <version>${v}</version>
+    <scope>system</scope>
+    <systemPath>\${project.basedir}/${jarFileName}</systemPath>
+</dependency>`;
+
+    const gradle = `// Gradle (JAR local)
+// 1. Descarga el JAR desde: ${info.documentation.downloadUrl || info.documentation.wiki}
+// 2. Coloca ${jarFileName} en libs/ de tu proyecto
+dependencies {
+    compileOnly(files("libs/${jarFileName}"))
+}`;
+
+    const pluginYml = `# plugin.yml - Agregar dependencia
+depend: [EdTools]`;
+
+    let apiUsage = '';
+    if (info.apiReference) {
+      apiUsage = `\n\n// Uso de la API
+import ${info.apiReference.importPackage}.${info.apiReference.mainClass};
+
+${info.apiReference.mainClass} api = ${info.apiReference.mainClass}.getInstance();`;
+
+      if (info.apiReference.subApis && info.apiReference.subApis.length > 0) {
+        apiUsage += '\n\n// Sub-APIs disponibles:';
+        for (const subApi of info.apiReference.subApis) {
+          apiUsage += `\n// - api.${subApi.getter} -> ${subApi.description}`;
+        }
+      }
+    }
+
+    return `${maven}\n\n${gradle}\n\n${pluginYml}${apiUsage}`;
+  }
+
+  // Para dependencias normales con Maven
   const gradle = `// Gradle (Kotlin DSL)
 dependencies {
     compileOnly("${info.maven.groupId}:${info.maven.artifactId}:${v}")
