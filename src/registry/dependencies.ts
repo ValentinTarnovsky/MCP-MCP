@@ -143,21 +143,20 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
     aliases: ['nbt-api', 'de.tr7zw:item-nbt-api', 'nbtapi'],
   },
 
-  'protocollib': {
-    name: 'ProtocolLib',
-    description: 'Library for reading and modifying Minecraft packets',
+  'packetevents': {
+    name: 'PacketEvents',
+    description: 'Modern, multi-platform Minecraft packet manipulation library (Spigot/Paper/BungeeCord/Velocity/Fabric/Sponge)',
     documentation: {
-      wiki: 'https://github.com/dmulloy2/ProtocolLib/wiki',
-      javadocs: 'https://ci.dmulloy2.net/job/ProtocolLib/javadoc/',
-      github: 'https://github.com/dmulloy2/ProtocolLib',
+      wiki: 'https://docs.packetevents.com/',
+      javadocs: 'https://javadocs.packetevents.com/',
+      github: 'https://github.com/retrooper/packetevents',
     },
     maven: {
-      groupId: 'com.comphenix.protocol',
-      artifactId: 'ProtocolLib',
-      repository: 'custom',
-      repositoryUrl: 'https://repo.dmulloy2.net/repository/public/',
+      groupId: 'com.github.retrooper',
+      artifactId: 'packetevents-spigot',
+      repository: 'maven-central',
     },
-    aliases: ['protocol-lib', 'com.comphenix.protocol:ProtocolLib'],
+    aliases: ['packet-events', 'com.github.retrooper:packetevents-spigot', 'packetevents-spigot'],
   },
 
   'decentholograms': {

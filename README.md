@@ -21,7 +21,7 @@ An MCP (Model Context Protocol) server that helps Minecraft Java plugin develope
 | Vault | JitPack | Economy/Permissions/Chat API |
 | HikariCP | Maven Central | JDBC connection pool |
 | Item-NBT-API | CodeMC | NBT manipulation without NMS |
-| ProtocolLib | Custom | Packet manipulation library |
+| PacketEvents | Maven Central | Packet manipulation library |
 | DecentHolograms | JitPack | Hologram plugin API |
 | CoreProtect | Maven Central | Block logging API |
 | mc-MenuAPI | JitPack | GUI/Menu API |
