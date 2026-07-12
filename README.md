@@ -14,18 +14,18 @@ An MCP (Model Context Protocol) server that helps Minecraft Java plugin develope
 
 | Dependency | Repository | Description |
 |------------|------------|-------------|
+| SnLib | Local (.m2) | Sn all-in-one lib: yml, menus, items, db, papi, lang, holograms, econ and more (standalone hard-depend) |
 | Paper API | Paper | Paper Minecraft server API |
 | Spigot API | Spigot | Spigot Minecraft server API |
 | Bukkit | Spigot | Bukkit API |
 | LuckPerms | Maven Central | Permissions plugin API |
-| Vault | JitPack | Economy/Permissions/Chat API |
-| HikariCP | Maven Central | JDBC connection pool |
-| Item-NBT-API | CodeMC | NBT manipulation without NMS |
+| Vault | JitPack | Economy/Permissions/Chat API (SnLib covers this via `sn.economy()`) |
+| HikariCP | Maven Central | JDBC connection pool (SnLib covers this via `sn.db()`) |
+| Item-NBT-API | CodeMC | NBT manipulation without NMS (SnLib covers this via `sn.items()`) |
 | PacketEvents | Maven Central | Packet manipulation library |
-| DecentHolograms | JitPack | Hologram plugin API |
+| DecentHolograms | JitPack | Hologram plugin API (SnLib covers this via `sn.holograms()`) |
 | CoreProtect | Maven Central | Block logging API |
-| mc-MenuAPI | JitPack | GUI/Menu API |
-| PlaceholderAPI | Custom | Placeholder system |
+| PlaceholderAPI | Custom | Placeholder system (SnLib covers the dev hook via `sn.papi()`) |
 | WorldEdit | Custom | World editing API |
 | WorldGuard | Custom | Region protection API |
 | SkinsRestorer | CodeMC | Skin management API |

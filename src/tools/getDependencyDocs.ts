@@ -40,6 +40,7 @@ export interface DependencyDocsResult {
         methods?: string[];
       }>;
     };
+    recommendation?: string;
   };
   suggestions?: string[];
   error?: string;
@@ -88,6 +89,11 @@ export async function getDependencyDocs(
     }
   }
 
+  // Deps not on a public repo (local/manual) carry a pinned version as fallback.
+  if (!latestVersion && info.maven.version) {
+    latestVersion = info.maven.version;
+  }
+
   return {
     found: true,
     dependency: {
@@ -103,6 +109,7 @@ export async function getDependencyDocs(
       },
       quickStart: generateQuickStart(info, latestVersion),
       apiReference: info.apiReference,
+      recommendation: info.recommendation,
     },
   };
 }
@@ -206,6 +213,62 @@ ${info.apiReference.mainClass} api = ${info.apiReference.mainClass}.getInstance(
     }
 
     return `${maven}\n\n${gradle}\n\n${pluginYml}${apiUsage}`;
+  }
+
+  // Para libs standalone hard-depend resueltas desde el .m2 local (ej. SnLib)
+  if (info.maven.repository === 'local') {
+    const install = `# 1. Publicá la lib en tu repositorio Maven local (una vez, y en cada update):
+mvn install -f <ruta>/${info.name}/pom.xml
+# JitPack NO aplica: el repo es privado. La unica via de resolucion es el .m2 local.`;
+
+    const maven = `<!-- Maven (resuelto desde el .m2 local, NUNCA se shadea) -->
+<dependency>
+    <groupId>${info.maven.groupId}</groupId>
+    <artifactId>${info.maven.artifactId}</artifactId>
+    <version>${v}</version>
+    <scope>provided</scope>
+</dependency>`;
+
+    const gradle = `// Gradle (Kotlin DSL)
+repositories { mavenLocal() }
+dependencies {
+    compileOnly("${info.maven.groupId}:${info.maven.artifactId}:${v}")
+}`;
+
+    const pluginYml = `# plugin.yml - hard depend al plugin standalone
+depend: [${info.name}]`;
+
+    let entrypoint = '';
+    if (info.apiReference) {
+      entrypoint = `\n\n// Entrypoint: la UNICA via de init es extender ${info.apiReference.mainClass}
+import ${info.apiReference.importPackage}.SnApi;
+import ${info.apiReference.importPackage}.${info.apiReference.mainClass};
+import ${info.apiReference.importPackage}.SnSpec;
+
+public final class MyPlugin extends ${info.apiReference.mainClass} {
+    @Override protected int requiredApiLevel() { return SnApi.LEVEL; }
+    @Override protected SnSpec buildSpec() {
+        return SnSpec.builder().config("config.yml").lang().guis().build();
+    }
+    @Override protected void onInnerEnable() {
+        Sn sn = sn();   // contexto: sn.yml(), sn.guis(), sn.items(), sn.db(), ...
+    }
+}`;
+
+      // Solo los accessors reales del contexto (sn.x()); las utils estáticas y
+      // los eventos custom viven en la sección API Reference, no en el contexto.
+      const contextModules = info.apiReference.subApis?.filter((s) =>
+        s.getter.startsWith('sn.')
+      );
+      if (contextModules && contextModules.length > 0) {
+        entrypoint += '\n\n// Modulos disponibles en el contexto Sn:';
+        for (const subApi of contextModules) {
+          entrypoint += `\n// - ${subApi.getter} -> ${subApi.name}`;
+        }
+      }
+    }
+
+    return `${install}\n\n${maven}\n\n${gradle}\n\n${pluginYml}${entrypoint}`;
   }
 
   // Para dependencias normales con Maven

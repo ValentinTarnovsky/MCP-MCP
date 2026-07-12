@@ -21,6 +21,10 @@ import {
   getDependencyDocsToolDefinition,
 } from './tools/getDependencyDocs.js';
 import {
+  getApiReference,
+  getApiReferenceToolDefinition,
+} from './tools/getApiReference.js';
+import {
   scanProjectDependencies,
   formatScanResult,
   scanProjectDependenciesToolDefinition,
@@ -39,11 +43,45 @@ import {
 } from './tools/analyzePluginProject.js';
 import { getDependencyKeys, DEPENDENCY_REGISTRY } from './registry/dependencies.js';
 
+/**
+ * Render an apiReference block as markdown (main class + every sub-API with its
+ * getter, description and method signatures).
+ */
+function renderApiReference(apiRef: {
+  mainClass: string;
+  importPackage: string;
+  subApis?: Array<{
+    name: string;
+    getter: string;
+    description: string;
+    methods?: string[];
+  }>;
+}): string {
+  let out = `\n\n## API Reference\n`;
+  out += `- Main class: \`${apiRef.mainClass}\`\n`;
+  out += `- Import package: \`${apiRef.importPackage}\`\n`;
+
+  if (apiRef.subApis && apiRef.subApis.length > 0) {
+    out += `\n### Módulos / Sub-APIs\n`;
+    for (const sub of apiRef.subApis) {
+      out += `\n**${sub.name}** - \`${sub.getter}\`\n`;
+      out += `${sub.description}\n`;
+      if (sub.methods && sub.methods.length > 0) {
+        out += '```java\n';
+        out += sub.methods.join('\n');
+        out += '\n```\n';
+      }
+    }
+  }
+
+  return out;
+}
+
 // Create server instance
 const server = new Server(
   {
     name: 'minecraft-plugin-docs',
-    version: '1.0.1',
+    version: '1.1.0',
   },
   {
     capabilities: {
@@ -58,6 +96,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       getDependencyDocsToolDefinition,
+      getApiReferenceToolDefinition,
       scanProjectDependenciesToolDefinition,
       checkLatestVersionsToolDefinition,
       analyzePluginProjectToolDefinition,
@@ -102,6 +141,31 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (dep.maven.latestVersion) text += `- Latest Version: ${dep.maven.latestVersion}\n`;
         if (dep.maven.repositoryUrl) text += `- Repository URL: ${dep.maven.repositoryUrl}\n`;
         text += `\n## Quick Start\n\`\`\`\n${dep.quickStart}\n\`\`\``;
+
+        if (dep.apiReference) {
+          text += renderApiReference(dep.apiReference);
+        }
+        if (dep.recommendation) {
+          text += `\n\n## Recomendación\n> ${dep.recommendation}`;
+        }
+
+        return {
+          content: [{ type: 'text', text }],
+        };
+      }
+
+      case 'get_api_reference': {
+        const typedArgs = args as {
+          query: string;
+          ask?: string;
+          goal?: string;
+          list?: boolean;
+        };
+        const text = await getApiReference(typedArgs.query, {
+          ask: typedArgs.ask,
+          goal: typedArgs.goal,
+          list: typedArgs.list,
+        });
 
         return {
           content: [{ type: 'text', text }],
@@ -226,6 +290,13 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   text += `- GitHub: ${dep.documentation.github}\n\n`;
   text += `## Maven Coordinates\n`;
   text += `\`\`\`\n${dep.quickStart}\n\`\`\``;
+
+  if (dep.apiReference) {
+    text += renderApiReference(dep.apiReference);
+  }
+  if (dep.recommendation) {
+    text += `\n\n## Recomendación\n> ${dep.recommendation}`;
+  }
 
   return {
     contents: [
