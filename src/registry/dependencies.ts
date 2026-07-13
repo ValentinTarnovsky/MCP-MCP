@@ -10,7 +10,7 @@ export interface DependencyInfo {
     wiki?: string;
     javadocs?: string;
     github: string;
-    downloadUrl?: string; // Para JARs manuales
+    downloadUrl?: string; // For manual JARs
   };
   maven: {
     groupId: string;
@@ -26,7 +26,7 @@ export interface DependencyInfo {
    * way to cover what this dependency does (SnLib bundles the equivalent module).
    */
   recommendation?: string;
-  /** Referencia de APIs disponibles para plugins con múltiples sub-APIs */
+  /** API reference for plugins with multiple sub-APIs */
   apiReference?: {
     mainClass: string;
     importPackage: string;
@@ -48,21 +48,21 @@ export const REPOSITORY_URLS: Record<RepositoryType, string> = {
   'spigot': 'https://hub.spigotmc.org/nexus/content/repositories/snapshots',
   'codemc': 'https://repo.codemc.io/repository/maven-public',
   'custom': '',
-  'manual': '', // JAR descargado manualmente, usar systemPath en Maven
-  'local': '', // Repo local .m2 (mvn install), no resoluble desde un repo publico
+  'manual': '', // Manually downloaded JAR, use systemPath in Maven
+  'local': '', // Local .m2 repo (mvn install), not resolvable from a public repo
 };
 
 export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
   'snlib': {
     name: 'SnLib',
     description:
-      'Librería común de los plugins Sn, empaquetada como PLUGIN STANDALONE. Un solo `SnLib.jar` ' +
-      'en `plugins/` provee yml gestionado, menús, ítems, comandos, base de datos, PAPI, lang, ' +
-      'scheduler (Folia-aware), hologramas, bossbars, cron, leaderboards, economía, cooldowns, ' +
-      'selecciones de cuboides y utilidades a cada consumer, con un único estilo de desarrollo y ' +
-      'cero dependencias repetidas. Modelo hard-depend: cada plugin declara `depend: [SnLib]` y ' +
-      'compila contra `com.sn:snlib` en scope `provided` (nada se shadea en el consumer). ' +
-      'Runtime floor 1.20.4, target 1.21.8, Java 21 obligatorio, cero NMS/paquetes (Paper + Adventure).',
+      'Common library of the Sn plugins, packaged as a STANDALONE PLUGIN. A single `SnLib.jar` ' +
+      'in `plugins/` provides managed yml, menus, items, commands, database, PAPI, lang, ' +
+      'scheduler (Folia-aware), holograms, bossbars, cron, leaderboards, economy, cooldowns, ' +
+      'cuboid selections and utilities to every consumer, with a single development style and ' +
+      'zero repeated dependencies. Hard-depend model: each plugin declares `depend: [SnLib]` and ' +
+      'compiles against `com.sn:snlib` in `provided` scope (nothing is shaded in the consumer). ' +
+      'Runtime floor 1.20.4, target 1.21.8, Java 21 required, zero NMS/packets (Paper + Adventure).',
     documentation: {
       wiki: 'https://github.com/ValentinTarnovsky/SnLib/blob/main/README.md',
       github: 'https://github.com/ValentinTarnovsky/SnLib',
@@ -71,9 +71,9 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
       groupId: 'com.sn',
       artifactId: 'snlib',
       repository: 'local',
-      version: '1.2.0',
+      version: '1.2.1',
     },
-    aliases: ['sn-lib', 'com.sn:snlib', 'sn'],
+    aliases: ['sn-lib', 'com.sn:snlib', 'sn', 'snbridge', 'sn-bridge', 'snproxy'],
     apiReference: {
       mainClass: 'SnPlugin',
       importPackage: 'com.sn.lib',
@@ -82,15 +82,15 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'yml',
           getter: 'sn.yml()',
           description:
-            'YmlManager/SnYml: lectura de YML con tabs autocorregidos (1 warn), getters tipados con ' +
-            'default + WARN (nunca stacktrace), placeholders locales + PAPI por getter y auto-merge ' +
-            'estructural de configs en cada arranque (sin config-version, preserva valores/comentarios).',
+            'YmlManager/SnYml: YML reading with auto-corrected tabs (1 warn), typed getters with ' +
+            'default + WARN (never a stacktrace), local placeholders + PAPI per getter and structural ' +
+            'auto-merge of configs on every startup (no config-version, preserves values/comments).',
           methods: [
             'config() -> SnYml',
-            'managed(String name) -> SnYml   // merge-always contra el jar',
-            'seedOnly(String name) -> SnYml   // solo se copia si falta',
-            'data(String name) -> SnYml   // data: nunca se mergea',
-            'managedPruning(String path)   // opt-in: borra keys ausentes del recurso',
+            'managed(String name) -> SnYml   // merge-always against the jar',
+            'seedOnly(String name) -> SnYml   // copied only if missing',
+            'data(String name) -> SnYml   // data: never merged',
+            'managedPruning(String path)   // opt-in: removes keys absent from the resource',
             'SnYml.getInt/getString(key, default[, viewer]); onReload(cb); set(k,v); save()',
           ],
         },
@@ -98,13 +98,13 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'guis',
           getter: 'sn.guis()',
           description:
-            'GuiManager: un GUI por archivo en `guis/` (golden spec docs/menu-example.yml, cualquier ' +
-            'campo del spec YA funciona sin código). Una GuiSession + Inventory POR VIEWER, paginación ' +
-            'real per-player, layout ASCII, matriz de clicks por botón, anti-robo NBT 7-vector. ' +
-            'Reemplaza mc-MenuAPI.',
+            'GuiManager: one GUI per file in `guis/` (golden spec docs/menu-example.yml, any field ' +
+            'of the spec ALREADY works without code). One GuiSession + Inventory PER VIEWER, real ' +
+            'per-player pagination, ASCII layout, click matrix per button, 7-vector NBT anti-theft. ' +
+            'Replaces mc-MenuAPI.',
           methods: [
             'get(String id) -> Gui',
-            'registerAction(String tag, handler)   // acción [custom]',
+            'registerAction(String tag, handler)   // [custom] action',
             'Gui.open(Player); Gui.session(Player) -> GuiSession',
             'GuiSession.bind(slot, template, Ph...); bindPaged(templateId, data, slots, binder)',
             'GuiSession.setTotalPages(int)',
@@ -114,29 +114,29 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'items',
           getter: 'sn.items()',
           description:
-            'ItemRegistry/ItemDef/SnItem: ítems físicos por YML (docs/item-example.yml) o 100% ' +
-            'programáticos. NBT/PDC, anti-robo `locked` (7 vectores, restore en quit/shutdown), ' +
-            '12 variantes de interact-action, durabilidad custom, recetas, held-effects, skull-owner y ' +
-            'attributes. Reemplaza Item-NBT-API (tags persistentes vía `TagIo`, sin NMS).',
+            'ItemRegistry/ItemDef/SnItem: physical items from YML (docs/item-example.yml) or 100% ' +
+            'programmatic. NBT/PDC, `locked` anti-theft (7 vectors, restore on quit/shutdown), ' +
+            '12 interact-action variants, custom durability, recipes, held-effects, skull-owner and ' +
+            'attributes. Replaces Item-NBT-API (persistent tags via `TagIo`, no NMS).',
           methods: [
             'register(String id, ItemDef def)',
             'give(Player, String id, int amount)',
             'damage(Player, ItemStack, int amount)',
             'ItemDef.builder().item(SnItem).locked().noDrop().obtainVia(...).onRightClick(...).build()',
-            'new SnItem(Material).name(...).glow().skullOwner(...).attribute(...).damage(int)',
+            'SnItem.builder(Material).name(...).glow().skullOwner(...).attribute(...).damage(int) (constructor is private, builder is the only entry)',
           ],
         },
         {
           name: 'db',
           getter: 'sn.db()',
           description:
-            'SnDb: SQLite (pool=1 + WAL + busy_timeout) o MySQL (pool Hikari), drivers shadeados sin ' +
-            'relocation (una sola copia en el server). Consultas async, `thenSync` con guard de ' +
-            'isEnabled, `PlayerDataCache`. Reemplaza a agregar HikariCP por separado.',
+            'SnDb: SQLite (pool=1 + WAL + busy_timeout) or MySQL (Hikari pool), drivers shaded ' +
+            'without relocation (a single copy on the server). Async queries, `thenSync` with an ' +
+            'isEnabled guard, `PlayerDataCache`. Replaces adding HikariCP separately.',
           methods: [
             'bootstrap(Schema...).orDisablePlugin()',
             'query(sql, prep, mapper).thenSync(result -> ...)',
-            'update(sql, prep)   // nunca en el main thread',
+            'update(sql, prep)   // never on the main thread',
             'playerCache(loader, saver) -> PlayerDataCache<T>',
           ],
         },
@@ -144,12 +144,12 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'papi',
           getter: 'sn.papi()',
           description:
-            'SnPapi: si PlaceholderAPI está ausente devuelve el texto SIN tocar (hook aislado, sin ' +
-            'NoClassDefFoundError). Expansiones declarativas con persist. Reemplaza el hook manual a ' +
-            'PlaceholderAPI (que sigue siendo el plugin runtime).',
+            'SnPapi: if PlaceholderAPI is absent it returns the text UNTOUCHED (isolated hook, no ' +
+            'NoClassDefFoundError). Declarative expansions with persist. Replaces the manual hook to ' +
+            'PlaceholderAPI (which is still the runtime plugin).',
           methods: [
             'apply(viewer, text) -> String',
-            'applyOnMain(viewer, text) -> SnFuture<String>   // hop a main desde async, fail-open',
+            'applyOnMain(viewer, text) -> SnFuture<String>   // hop to main from async, fail-open',
             'expansion(String id).resolver((player, params) -> ...).register()',
           ],
         },
@@ -157,8 +157,8 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'economy',
           getter: 'sn.economy()',
           description:
-            'EconomyBridge: usa Vault cuando está presente; si no, un backend por comandos ' +
-            'configurable. Todo async-safe. Reemplaza acoplarte a la API de Vault directo.',
+            'EconomyBridge: uses Vault when present; otherwise a configurable command-based ' +
+            'backend. All async-safe. Replaces coupling to the Vault API directly.',
           methods: [
             'getBalance(player) ; give(player, amount) ; tryTake(player, amount)',
             'useCommandBackend(give, take, balancePlaceholder)',
@@ -168,21 +168,22 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'holograms',
           getter: 'sn.holograms()',
           description:
-            'HologramUtil: hologramas con TextDisplay reales (cero NMS), visibilidad por jugador, ' +
-            'refresh PAPI opcional, huérfanos purgados en chunk-load/startup vía PDC. Reemplaza ' +
-            'DecentHolograms u otro plugin de hologramas externo.',
+            'HologramUtil: holograms with real TextDisplay entities (zero NMS), per-player ' +
+            'visibility, optional PAPI refresh, orphans purged on chunk-load/startup via PDC. ' +
+            'Replaces DecentHolograms or another external hologram plugin.',
           methods: [
             'spawn(String id, Location loc, List<String> lines)',
             'setLines(String id, List<String> lines)',
-            'per-player visibility + refresh PAPI',
+            'per-player visibility + PAPI refresh',
           ],
         },
         {
           name: 'lang',
           getter: 'sn.lang()',
           description:
-            'SnLang: `lang/messages_<code>.yml` con merge-always y fallback per-key a `en`. Envío por ' +
-            'el pipeline SnText (MiniMessage + [small] + [rgb] + [center]). Actionbar persistente.',
+            'SnLang: `lang/messages_<code>.yml` with merge-always and per-key fallback to `en`. ' +
+            'Sent through the SnText pipeline (MiniMessage + [small] + [rgb] + [center]). ' +
+            'Persistent actionbar.',
           methods: [
             'send(player, key, Ph...); broadcast(key, Ph...)',
             'actionbar(player, key, Duration, Ph...); title(player, key, Ph...)',
@@ -193,8 +194,9 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'commands',
           getter: 'sn.commands()',
           description:
-            'SnCommands: árbol root/sub, todo tab-completable y GATED por permiso (un sub sin permiso ' +
-            'es invisible en tab y help). Registro reload-safe por Plugin owner.',
+            'SnCommands: root/sub tree, fully tab-completable and GATED by permission (a sub ' +
+            'without permission is invisible in tab and help). Reload-safe registration per ' +
+            'Plugin owner.',
           methods: [
             'root(name).permission(p).sub(name).permission(p).arg(name, Args.x()).executes(ctx).and().register()',
             'Args.onlinePlayer() / Args.intRange(min, max)',
@@ -204,18 +206,18 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'actions',
           getter: 'sn.actions()',
           description:
-            'ActionEngine + RequirementEngine: líneas `[tag] arg` en YML ([player], [console], ' +
-            '[message], [sound], [close], [open], [connect], [title], [particle], nav de páginas...), ' +
-            'click guards y requirements con `%placeholder% > 0 && ...` (descenso recursivo con paréntesis).',
+            'ActionEngine + RequirementEngine: `[tag] arg` lines in YML ([player], [console], ' +
+            '[message], [sound], [close], [open], [connect], [title], [particle], page nav...), ' +
+            'click guards and requirements with `%placeholder% > 0 && ...` (recursive descent with parentheses).',
           methods: [
-            'register(String tag, handler)   // tag custom',
-            'requirements por YML: view/click/interact-requirements + deny-actions',
+            'register(String tag, handler)   // custom tag',
+            'requirements via YML: view/click/interact-requirements + deny-actions',
           ],
         },
         {
           name: 'cooldowns',
           getter: 'sn.cooldowns()',
-          description: 'Cooldowns: sin boxing; entradas no vencidas sobreviven relogs por diseño; categorías de sesión.',
+          description: 'Cooldowns: no boxing; unexpired entries survive relogs by design; session categories.',
           methods: [
             'tryUse(UUID, String key, Duration) -> boolean',
             'registerSessionCategory(String)',
@@ -224,17 +226,17 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
         {
           name: 'scheduler',
           getter: 'sn.scheduler()',
-          description: 'SnScheduler Folia-aware: sync/async, later, timers, supplyAsync/thenSync con guard de isEnabled.',
+          description: 'SnScheduler Folia-aware: sync/async, later, timers, supplyAsync/thenSync with an isEnabled guard.',
           methods: [
             'sync/async(Runnable); syncLater/asyncLater(Runnable, ticks)',
             'timer/timerAsync(Runnable, delay, period) -> TaskHandle',
-            'supplyAsync(supplier).thenSync(consumer)',
+            'supplyAsync(Supplier) -> CompletableFuture; thenSync(future, consumer) takes the future as argument (not fluent; only SnDb SnFuture chains .thenSync)',
           ],
         },
         {
           name: 'bossbars',
           getter: 'sn.bossbars()',
-          description: 'BossBarUtil: pura Adventure (cero paquetes), auto-hide en quit/teardown.',
+          description: 'BossBarUtil: pure Adventure (zero packets), auto-hide on quit/teardown.',
           methods: [
             'create(String id).text(...).progress(float).build()',
             'show/hide/setText/setProgress/timer',
@@ -243,7 +245,7 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
         {
           name: 'cron',
           getter: 'sn.cron()',
-          description: 'SnCron: subset cron de 5 campos + shortcuts (daily 04:00 / hourly :30), DST-safe, catchUp persistible.',
+          description: 'SnCron: 5-field cron subset + shortcuts (daily 04:00 / hourly :30), DST-safe, persistable catchUp.',
           methods: [
             'schedule(String id, String expr, Runnable task)',
           ],
@@ -251,7 +253,7 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
         {
           name: 'leaderboards',
           getter: 'sn.leaderboards()',
-          description: 'LeaderboardCache: snapshot inmutable con swap atómico, lectura lock-free, placeholders opt-in.',
+          description: 'LeaderboardCache: immutable snapshot with atomic swap, lock-free reads, opt-in placeholders.',
           methods: [
             'register(String id, Duration refresh, query)',
             'getTop / positionOf / valueOf',
@@ -260,7 +262,7 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
         {
           name: 'discord',
           getter: 'sn.discord()',
-          description: 'DiscordWebhook: POST async con HttpClient JDK, cola FIFO honrando Retry-After, drain best-effort en teardown.',
+          description: 'DiscordWebhook: async POST with the JDK HttpClient, FIFO queue honoring Retry-After, best-effort drain on teardown.',
           methods: [
             'message(url).content("...").embed(...).send()',
           ],
@@ -269,21 +271,21 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'updates',
           getter: 'sn.updates()',
           description:
-            'UpdateChecker (notify-only): apunta al repo GitHub del CONSUMER y avisa si hay release ' +
-            'más nuevo. NUNCA descarga ni auto-swapea. Soporta repos privados vía token en config.',
+            'UpdateChecker (notify-only): points at the CONSUMER GitHub repo and warns if there is ' +
+            'a newer release. NEVER downloads or auto-swaps. Supports private repos via a token in config.',
           methods: [
-            'checkNow("owner/repo")   // o SnSpec.builder().updates("owner/repo")',
+            'checkNow("owner/repo")   // or SnSpec.builder().updates("owner/repo")',
           ],
         },
         {
           name: 'selections',
           getter: 'sn.selections()',
           description:
-            'SelectionManager (módulo region): selecciones visuales de cuboides para cualquier consumer ' +
-            '(100% programático, sin gate de spec). `Cuboid` inmutable thread-safe. Emite ' +
+            'SelectionManager (region module): visual cuboid selections for any consumer (100% ' +
+            'programmatic, no spec gate). Immutable thread-safe `Cuboid`. Emits ' +
             'SnSelectionCompleteEvent (cancelable).',
           methods: [
-            'giveWand(Player, SelectionSpec)   // o createWand(spec)',
+            'giveWand(Player, SelectionSpec)   // or createWand(spec)',
             'SelectionSpec.builder(id).permission(p).onSelect(cuboid -> ...).build()',
           ],
         },
@@ -291,8 +293,8 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           name: 'debug',
           getter: 'sn.debug()',
           description:
-            'SnDebug: toggle en runtime (/command debug con debugCommand()), niveles OFF<INFO<DEBUG<TRACE, ' +
-            'Supplier lazy para no construir strings caros con debug off.',
+            'SnDebug: runtime toggle (/command debug with debugCommand()), levels OFF<INFO<DEBUG<TRACE, ' +
+            'lazy Supplier to avoid building expensive strings when debug is off.',
           methods: [
             'log(() -> "state=" + expensive())',
             'info(...) ; trace(...) ; tracing()',
@@ -301,41 +303,86 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
         {
           name: 'reload',
           getter: 'sn.reload()',
-          description: 'ReloadManager del plugin dueño: reconstruye los módulos declarados en orden estricto y re-dispara los reloadables.',
+          description: 'ReloadManager of the owning plugin: rebuilds the declared modules in strict order and re-fires the reloadables.',
           methods: [
             'register(reloadable)',
           ],
         },
         {
-          name: 'utils (estáticas)',
-          getter: 'com.sn.lib.util.* (sin getter, clases estáticas)',
+          name: 'bridge (@SnExperimental)',
+          getter: 'sn.bridge()',
           description:
-            'Helpers estáticos puros, se usan directo sin pasar por el contexto Sn. Paquete ' +
-            '`com.sn.lib.util` salvo donde se indica.',
+            'SnBridge (EXPERIMENTAL, v1.2 - outside the japicmp / SnApi.LEVEL gate, API may change): ' +
+            'typed plugin-messaging channels from a Paper backend toward the Velocity proxy, with a ' +
+            'HELLO handshake, HMAC, chunking and a bounded TTL queue. Main-thread confined. ' +
+            '`channel(namespace, msgsetVersion)` claims a namespace (`snlib:ext/<namespace>`, ' +
+            'first-claim-wins across ALL consumers, hard error on collision); the reserved `snlib:` ' +
+            'prefix is off-limits for consumer wire ids. Every send resolves a terminal SnDelivery ' +
+            '(never void, never silent); requests resolve on the main thread (thenSync-friendly).',
           methods: [
-            'SlotParser.parse("0-8,10") -> int[]   // rangos mixtos',
-            'TimeUtil.parse/format("1d 2h 30m 15s")',
-            'NumberFormatter.format(n) -> "1.2K" (K/M/B/T/Qa/Qi) + parse inverso + formatComma',
-            'MathUtil: redondeo justo, convertToRoman(int)',
-            'HeadUtil: heads base64/basehead/URL, LRU cache; fromPlayer / applyOwner(OfflinePlayer)',
-            'TagIo: PDC (NBT persistente) por owner',
-            'PlayerLookup.fetchUuid(name) -> async contra Mojang, LRU con dedupe',
-            'ArmourUtil.slotOf/isArmour/isWearingFullSet ; LocationUtil.inCuboid/distance2d/distanceToBoxSquared',
-            'SoundUtil (ids lenientes), InvUtil, Experience, LocationSerializer, WeightedRandomPool',
-            'Cuboid (com.sn.lib.region): cuboide inmutable thread-safe (contains/intersects/expand/forEach)',
-            'Page<T> (com.sn.lib.command): helper de paginación',
+            'sn.bridge().channel(String namespace, int msgsetVersion) -> SnBridgeChannel',
+            'channel.register(SnWireType<?>... types)   // duplicate/reserved ids hard-fail',
+            'channel.on(SnWireType<T>, BiConsumer<Player, T>)   // handler on the main thread',
+            'channel.respond(reqType, respType, BiFunction<Player, T, R>)   // answer a proxy request',
+            'channel.send(Player carrier, type, msg[, SnSendOpts]) -> CompletableFuture<SnDelivery>',
+            'channel.sendAny(type, msg, SnSendOpts) -> CompletableFuture<SnDelivery>   // any ready carrier',
+            'channel.request(reqType, req, respType, Duration) -> SnFuture<R>   // thenSync/exceptionally',
+            'channel.state() -> SnBridgeState (WARMING|READY); channel.onState(callback)',
+            'channel.pending() -> int; channel.remoteMsgset() -> int; channel.detectLegacy(String legacyChannel)',
           ],
         },
         {
-          name: 'eventos custom (Bukkit)',
+          name: 'velocity (@SnExperimental)',
+          getter: 'SnProxy.channel(plugin, namespace, msgset)   // static, com.sn.lib.velocity',
+          description:
+            'SnProxy (EXPERIMENTAL, v1.2, API may change): the proxy side of SnBridge. The SAME ' +
+            'SnLib.jar loads on Velocity as plugin id `snlib`, so a consumer proxy plugin declares ' +
+            '`{"id": "snlib"}` in the dependencies of its velocity-plugin.json (mirror of ' +
+            '`depend: [SnLib]` on Paper). `SnProxy.channel(consumerPlugin, namespace, msgsetVersion)` ' +
+            'returns a typed SnProxyChannel (first-claim-wins, SAME namespace the backend claims). ' +
+            'Tier 2 verbs let a proxy-only plugin act on a backend without shipping a Paper jar.',
+          methods: [
+            'SnProxy.channel(Object consumerPlugin, String namespace, int msgset) -> SnProxyChannel',
+            'channel.register(types); channel.on(type, BiConsumer<SnProxySource, T>); channel.respond(reqType, respType, handler)',
+            'channel.to(String server).send(type, msg[, opts]) -> CompletableFuture<SnDelivery>',
+            'channel.to(String server).request(reqType, req, respType, Duration) -> CompletableFuture<R>',
+            'channel.capabilities(String server) -> Optional<SnBackendInfo>; channel.pending(); channel.detectLegacy(legacyChannel)',
+            'SnProxy.verbs().on(server): console(cmd), message(uuid, text), title(uuid, title, sub, in, stay, out), actionbar(uuid, text), sound(uuid, spec), actions(uuid, List<String>)',
+            'SnProxy.verbs().on(server): bossbar(uuid, id, spec), bossbarUpdate(uuid, id, text, progress), bossbarHide(uuid, id), allowlist() -> AllowlistReport',
+            'SnProxy.verbs() calls each return a terminal CompletableFuture<SnDelivery> (at-most-once)',
+            'SnProxy.statusReport() -> String   // aggregated per-backend status',
+          ],
+        },
+        {
+          name: 'utils (static)',
+          getter: 'com.sn.lib.util.* (no getter, static classes)',
+          description:
+            'Pure static helpers, used directly without going through the Sn context. Package ' +
+            '`com.sn.lib.util` except where noted.',
+          methods: [
+            'SlotParser.parse("0-8,10") -> int[]   // mixed ranges',
+            'TimeUtil.parse/format("1d 2h 30m 15s")',
+            'NumberFormatter.format(n) -> "1.2K" (K/M/B/T/Qa/Qi) + inverse parse + formatComma',
+            'MathUtil: fair rounding, convertToRoman(int)',
+            'HeadUtil: base64/basehead/URL heads, LRU cache; fromPlayer / applyOwner(OfflinePlayer)',
+            'TagIo: PDC (persistent NBT) per owner',
+            'PlayerLookup.fetchUuid(name) -> async against Mojang, LRU with dedupe',
+            'ArmourUtil.slotOf/isArmour/isWearingFullSet ; LocationUtil.inCuboid/distance2d/distanceToBoxSquared',
+            'SoundUtil (lenient ids), InvUtil, Experience, LocationSerializer, WeightedRandomPool',
+            'Cuboid (com.sn.lib.region): immutable thread-safe cuboid (contains/intersects/expand/forEach)',
+            'Page<T> (com.sn.lib.command): pagination helper',
+          ],
+        },
+        {
+          name: 'custom events (Bukkit)',
           getter: 'com.sn.lib.event.* (@EventHandler)',
           description:
-            'Eventos Bukkit propios que podés escuchar con un listener normal. Todos cancelables ' +
-            'donde el origen lo permite.',
+            'Own Bukkit events you can listen to with a normal listener. All cancelable ' +
+            'where the source allows it.',
           methods: [
-            'SnArmourEquipEvent: equip/unequip de armadura por cualquier vector (8 métodos)',
-            'SnChunkMoveEvent: cruce de chunk por movimiento (solo movimiento, no teleports/joins); cancelarlo cancela el PlayerMoveEvent',
-            'SnSelectionCompleteEvent: selección de cuboide completada (módulo selections)',
+            'SnArmourEquipEvent: armour equip/unequip by any vector (8 methods)',
+            'SnChunkMoveEvent: chunk crossing by movement (movement only, not teleports/joins); canceling it cancels the PlayerMoveEvent',
+            'SnSelectionCompleteEvent: cuboid selection completed (selections module)',
           ],
         },
       ],
@@ -422,9 +469,9 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
     },
     aliases: ['hikari', 'com.zaxxer:HikariCP'],
     recommendation:
-      'En plugins Sn preferí SnLib: `sn.db()` (SnDb) ya trae SQLite/MySQL sobre Hikari (shadeado, ' +
-      'una sola copia en el server), con `query/update` async, `thenSync` con guard de isEnabled y ' +
-      '`PlayerDataCache`. No agregues HikariCP por separado. Ver la dependencia `snlib`.',
+      'In Sn plugins prefer SnLib: `sn.db()` (SnDb) already ships SQLite/MySQL over Hikari (shaded, ' +
+      'a single copy on the server), with async `query/update`, `thenSync` with an isEnabled guard ' +
+      'and `PlayerDataCache`. Do not add HikariCP separately. See the `snlib` dependency.',
   },
 
   'item-nbt-api': {
@@ -443,9 +490,9 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
     },
     aliases: ['nbt-api', 'de.tr7zw:item-nbt-api', 'nbtapi'],
     recommendation:
-      'En plugins Sn preferí SnLib: el módulo items (`sn.items()` + `SnItem` + PDC vía `TagIo`) ' +
-      'maneja NBT, tags persistentes y anti-robo sin NMS ni una dependencia extra. ' +
-      'Usá Item-NBT-API solo si necesitás NBT crudo fuera del ecosistema Sn. Ver la dependencia `snlib`.',
+      'In Sn plugins prefer SnLib: the items module (`sn.items()` + `SnItem` + PDC via `TagIo`) ' +
+      'handles NBT, persistent tags and anti-theft with no NMS or an extra dependency. ' +
+      'Use Item-NBT-API only if you need raw NBT outside the Sn ecosystem. See the `snlib` dependency.',
   },
 
   'packetevents': {
@@ -478,9 +525,9 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
     },
     aliases: ['decent-holograms', 'holograms'],
     recommendation:
-      'En plugins Sn preferí SnLib: `sn.holograms()` (HologramUtil) crea hologramas con ' +
-      'TextDisplay reales (cero NMS/paquetes), visibilidad por jugador y refresh PAPI opcional, ' +
-      'sin depender de un plugin de hologramas externo. Ver la dependencia `snlib`.',
+      'In Sn plugins prefer SnLib: `sn.holograms()` (HologramUtil) creates holograms with real ' +
+      'TextDisplay entities (zero NMS/packets), per-player visibility and optional PAPI refresh, ' +
+      'without depending on an external hologram plugin. See the `snlib` dependency.',
   },
 
   'vault': {
@@ -498,9 +545,9 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
     },
     aliases: ['vault-api', 'vaultapi', 'com.github.MilkBowl:VaultAPI'],
     recommendation:
-      'En plugins Sn preferí SnLib: `sn.economy()` (EconomyBridge) usa Vault si está presente y ' +
-      'si no cae a un backend por comandos, con `getBalance`/`give`/`tryTake` async-safe. ' +
-      'Así no te acoplás a la API de Vault directo. Ver la dependencia `snlib`.',
+      'In Sn plugins prefer SnLib: `sn.economy()` (EconomyBridge) uses Vault when present and ' +
+      'otherwise falls back to a command-based backend, with async-safe `getBalance`/`give`/`tryTake`. ' +
+      'This avoids coupling to the Vault API directly. See the `snlib` dependency.',
   },
 
   'coreprotect': {
@@ -534,10 +581,10 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
     },
     aliases: ['papi', 'me.clip:placeholderapi'],
     recommendation:
-      'En plugins Sn preferí SnLib para el lado dev: `sn.papi()` (SnPapi) hace `apply`/`applyOnMain` ' +
-      'fail-open (si PlaceholderAPI no está, devuelve el texto sin `NoClassDefFoundError`) y registra ' +
-      'expansiones declarativas con `expansion(...).resolver(...).register()`. PlaceholderAPI sigue ' +
-      'siendo el plugin runtime; SnLib te evita el hook manual. Ver la dependencia `snlib`.',
+      'In Sn plugins prefer SnLib on the dev side: `sn.papi()` (SnPapi) does `apply`/`applyOnMain` ' +
+      'fail-open (if PlaceholderAPI is absent, it returns the text without a `NoClassDefFoundError`) ' +
+      'and registers declarative expansions with `expansion(...).resolver(...).register()`. ' +
+      'PlaceholderAPI is still the runtime plugin; SnLib saves you the manual hook. See the `snlib` dependency.',
   },
 
   'worldedit': {

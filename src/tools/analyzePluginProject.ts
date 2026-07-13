@@ -46,9 +46,9 @@ export interface ProjectAnalysis {
 }
 
 /**
- * Default path for OkiMC-Plugins folder
+ * Default path for the SnPlugins folder
  */
-const DEFAULT_PLUGINS_PATH = 'C:\\Users\\tarno\\Desktop\\OkiMC-Plugins';
+const DEFAULT_PLUGINS_PATH = 'C:\\Users\\tarno\\Desktop\\SnPlugins';
 
 /**
  * Analyze a Minecraft plugin project or workspace
@@ -346,7 +346,7 @@ export const analyzePluginProjectToolDefinition = {
     properties: {
       project_path: {
         type: 'string',
-        description: 'Path to the project or workspace directory. Defaults to "C:\\Users\\tarno\\Desktop\\OkiMC-Plugins" if not provided.',
+        description: 'Path to the project or workspace directory. Defaults to "C:\\Users\\tarno\\Desktop\\SnPlugins" if not provided.',
       },
       check_versions: {
         type: 'boolean',
