@@ -1,7 +1,7 @@
 {
   "name": "minecraft-plugin-docs-mcp",
-  "version": "1.1.0",
-  "description": "MCP server for Minecraft Java plugin developers to check documentation and versions of common dependencies",
+  "version": "2.0.0",
+  "description": "MCP server that serves live EdSeries plugin API documentation from the GitBook wiki",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -18,15 +18,13 @@
     "mcp",
     "plugin",
     "documentation",
-    "paper",
-    "spigot",
-    "bukkit"
+    "edtools",
+    "edseries"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
-    "fast-xml-parser": "^4.3.2"
+    "@modelcontextprotocol/sdk": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

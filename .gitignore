@@ -2,7 +2,10 @@
 node_modules/
 
 # Build output
-dist/
+# dist/ is intentionally COMMITTED: the MCP server is launched straight from
+# dist/index.js by Claude Code, so leaving it untracked meant the code being
+# executed was ahead of the code under version control. A fresh clone used to
+# produce a server that did not match what was actually running.
 
 # IDE
 .idea/
