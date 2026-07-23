@@ -218,7 +218,7 @@ export async function getApiReference(
 export const getApiReferenceToolDefinition = {
   name: 'get_api_reference',
   description:
-    "Fetch LIVE, up-to-date developer API documentation for EdSeries Minecraft plugins (EdTools, EdPrison, EdDungeons, PinnaPrison, EdPerks) straight from the GitBook wiki. Returns the full raw markdown of the best-matching page - including every event class, method signature with all parameters and return types, and code examples. Use this for ANY question about a plugin API: events, a specific sub-API (boosters, zones, currency, enchants, sell, leveling, guis, lucky blocks, omnitool, backpacks), a class, or a method. Prefer this over get_dependency_docs when you need actual API details rather than Maven coordinates.",
+    "Fetch LIVE, up-to-date developer API documentation for EdSeries Minecraft plugins (EdTools, EdPrison, EdDungeons, PinnaPrison, EdPerks) straight from the GitBook wiki. Returns the full raw markdown of the best-matching page - including every event class, method signature with all parameters and return types, and code examples. Use this for ANY question about an EdSeries plugin API: events, a specific sub-API (boosters, zones, currency, enchants, sell, leveling, guis, lucky blocks, omnitool, backpacks), a class, or a method. EdTools is in no Maven repository and has no local javadoc, so this wiki is its only source. For Maven coordinates, SnLib APIs or anything non-EdSeries, read the real files instead: the project pom.xml, sn-core section 14 and SnLib/docs/SNLIB-DOCS.md.",
   inputSchema: {
     type: 'object' as const,
     properties: {
