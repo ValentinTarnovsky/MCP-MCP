@@ -71,9 +71,9 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
       groupId: 'com.sn',
       artifactId: 'snlib',
       repository: 'local',
-      version: '1.2.1',
+      version: '1.3.0',
     },
-    aliases: ['sn-lib', 'com.sn:snlib', 'sn', 'snbridge', 'sn-bridge', 'snproxy'],
+    aliases: ['sn-lib', 'com.sn:snlib', 'sn'],
     apiReference: {
       mainClass: 'SnPlugin',
       importPackage: 'com.sn.lib',
@@ -309,48 +309,23 @@ export const DEPENDENCY_REGISTRY: Record<string, DependencyInfo> = {
           ],
         },
         {
-          name: 'bridge (@SnExperimental)',
-          getter: 'sn.bridge()',
+          name: 'velocity base (Snv)',
+          getter: 'Snv.create(plugin, proxy, logger, dataDir)   // com.sn.lib.velocity',
           description:
-            'SnBridge (EXPERIMENTAL, v1.2 - outside the japicmp / SnApi.LEVEL gate, API may change): ' +
-            'typed plugin-messaging channels from a Paper backend toward the Velocity proxy, with a ' +
-            'HELLO handshake, HMAC, chunking and a bounded TTL queue. Main-thread confined. ' +
-            '`channel(namespace, msgsetVersion)` claims a namespace (`snlib:ext/<namespace>`, ' +
-            'first-claim-wins across ALL consumers, hard error on collision); the reserved `snlib:` ' +
-            'prefix is off-limits for consumer wire ids. Every send resolves a terminal SnDelivery ' +
-            '(never void, never silent); requests resolve on the main thread (thenSync-friendly).',
+            'The SAME SnLib.jar is ALSO a Velocity plugin (`velocity-plugin.json`, entry ' +
+            '`SnLibVelocity`). On Velocity it is a small homogeneity base - config, text, scheduler ' +
+            'and commands - NOT a cross-server messaging framework (SnLib has no bridge). A consumer ' +
+            'proxy plugin declares `{"id": "snlib"}` in its velocity-plugin.json and builds an `Snv` ' +
+            'context (the small counterpart of `Sn`). `snv.color(...)` uses the SAME `SnText` pipeline ' +
+            'as Paper, so `&` / `[rgb]` / MiniMessage render identically on both platforms.',
           methods: [
-            'sn.bridge().channel(String namespace, int msgsetVersion) -> SnBridgeChannel',
-            'channel.register(SnWireType<?>... types)   // duplicate/reserved ids hard-fail',
-            'channel.on(SnWireType<T>, BiConsumer<Player, T>)   // handler on the main thread',
-            'channel.respond(reqType, respType, BiFunction<Player, T, R>)   // answer a proxy request',
-            'channel.send(Player carrier, type, msg[, SnSendOpts]) -> CompletableFuture<SnDelivery>',
-            'channel.sendAny(type, msg, SnSendOpts) -> CompletableFuture<SnDelivery>   // any ready carrier',
-            'channel.request(reqType, req, respType, Duration) -> SnFuture<R>   // thenSync/exceptionally',
-            'channel.state() -> SnBridgeState (WARMING|READY); channel.onState(callback)',
-            'channel.pending() -> int; channel.remoteMsgset() -> int; channel.detectLegacy(String legacyChannel)',
-          ],
-        },
-        {
-          name: 'velocity (@SnExperimental)',
-          getter: 'SnProxy.channel(plugin, namespace, msgset)   // static, com.sn.lib.velocity',
-          description:
-            'SnProxy (EXPERIMENTAL, v1.2, API may change): the proxy side of SnBridge. The SAME ' +
-            'SnLib.jar loads on Velocity as plugin id `snlib`, so a consumer proxy plugin declares ' +
-            '`{"id": "snlib"}` in the dependencies of its velocity-plugin.json (mirror of ' +
-            '`depend: [SnLib]` on Paper). `SnProxy.channel(consumerPlugin, namespace, msgsetVersion)` ' +
-            'returns a typed SnProxyChannel (first-claim-wins, SAME namespace the backend claims). ' +
-            'Tier 2 verbs let a proxy-only plugin act on a backend without shipping a Paper jar.',
-          methods: [
-            'SnProxy.channel(Object consumerPlugin, String namespace, int msgset) -> SnProxyChannel',
-            'channel.register(types); channel.on(type, BiConsumer<SnProxySource, T>); channel.respond(reqType, respType, handler)',
-            'channel.to(String server).send(type, msg[, opts]) -> CompletableFuture<SnDelivery>',
-            'channel.to(String server).request(reqType, req, respType, Duration) -> CompletableFuture<R>',
-            'channel.capabilities(String server) -> Optional<SnBackendInfo>; channel.pending(); channel.detectLegacy(legacyChannel)',
-            'SnProxy.verbs().on(server): console(cmd), message(uuid, text), title(uuid, title, sub, in, stay, out), actionbar(uuid, text), sound(uuid, spec), actions(uuid, List<String>)',
-            'SnProxy.verbs().on(server): bossbar(uuid, id, spec), bossbarUpdate(uuid, id, text, progress), bossbarHide(uuid, id), allowlist() -> AllowlistReport',
-            'SnProxy.verbs() calls each return a terminal CompletableFuture<SnDelivery> (at-most-once)',
-            'SnProxy.statusReport() -> String   // aggregated per-backend status',
+            'Snv.create(Object plugin, ProxyServer proxy, Logger logger, Path dataDir) -> Snv   // loads + merges config.yml',
+            'snv.config() -> SnvConfig: getString/getInt/getLong/getDouble/getBoolean(path, def), getStringList(path), getSection(path), contains(path), keys()',
+            'snv.reloadConfig()   // re-reads config.yml, re-merging the bundled defaults',
+            'snv.color(String) -> net.kyori.adventure.text.Component   // shared SnText pipeline (&, [rgb], [small], [center], MiniMessage)',
+            'snv.command(String name, com.velocitypowered.api.command.Command cmd, String... aliases)',
+            'snv.scheduler() -> SnvScheduler: run(task), later(task, delay), repeat(task[, delay], interval) -> ScheduledTask',
+            'snv.proxy() -> ProxyServer; snv.logger() -> org.slf4j.Logger; snv.dataDir() -> java.nio.file.Path',
           ],
         },
         {
